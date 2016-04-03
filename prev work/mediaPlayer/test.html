@@ -1,0 +1,43 @@
+<html>
+<head>
+	<title>test</title>
+	<script type="text/javascript" src = "../jquery-2.2.1.min.js"></script>
+	<script type="text/javascript">
+		var id = "1";
+		var elem = null;
+		playnext = function(){
+			console.log("current id : " + id);
+			if($("#" + id).next(".a").length){
+				elem = $('#' + id).next(".a");
+			}
+			else{
+				elem = $(".a").first();
+			}
+			id = elem.attr('id');
+			console.log("current id : " + id);
+		}
+		playprev = function(){
+			console.log("current id : " + id);
+			if($('#' + id).prev(".a").length){
+				elem = $('#' + id).prev(".a");
+			}
+			else{
+				elem = $(".a").last();
+			}
+			id = elem.attr('id');
+			console.log("current id : " + id);
+		}
+	</script>
+</head>
+<body>
+	<div id = "00">
+		<div id="1" class="a">1<div></div></div>
+		<div id="2" class="a">2<div></div></div>
+		<div id="3" class="a">3<div></div></div>
+		<div id="4" class="a">4<div></div></div>
+		<div id="5" class="a">5<div></div></div>
+		<div onclick="playnext();">playnext</div>
+		<div onclick="playprev();">playprev</div>
+	</div>
+</body>
+</html>

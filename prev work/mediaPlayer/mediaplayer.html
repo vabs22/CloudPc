@@ -1,0 +1,62 @@
+<html>
+<head>
+	<title>Media Player 1.0</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="../jquery-2.2.1.min.js"></script>
+	<script src="../jquery-ui.min.js"></script>
+	<script src="mediaplayer.js"></script>
+	 <script>
+	$(function() {
+		$( "#linklist" ).sortable({
+			revert: true
+		});
+	});
+	</script>
+</head>
+<body onload="Controller.init();">
+	<div class = "pagebody">
+		<div id = "left" class = "left">
+			<div id = "outerframe">
+				<div id="player"></div>
+	    		<div id = "linkdetails">
+	    			<div id = "linkname"></div>
+	    			<div id = "linkduration"></div>
+	    		</div>
+	    		<div id = "mediaoptions">
+	    			<div id = "playprev" class="icon" onclick="Controller.playPreviousVideo()">Previous</div>
+	    			<div id = "playpause" class="icon" onclick="Controller.playPauseVideo()">Play / Pause</div>
+	    			<div id = "playnext" class="icon" onclick="Controller.playNextVideo()">Next</div>
+	    		</div>
+			</div> 
+		</div>
+		<div id = "right" class = "right">
+			<div id = "r_container">
+				<div id = "options">
+					<div id = "addoption">add</div>
+					<div id = "deloption">delete</div>
+				</div>
+				<br>
+				<div id="addform">
+					<form onsubmit="return Controller.addLink();">
+						<br><br>
+						<input id="link" name="link" type="link" placeholder="link">
+						<br>
+						<input id="name" name="name" type="text" placeholder="name">
+						<br>
+						<input id="duration" name="duration" type="text" placeholder="duration">
+						<br>
+						<input id="submit" type="submit" name="add">
+					</form>
+				</div>
+				<div id="label">
+					<b>Library</b>
+				</div>
+				<br><br><br><br>
+				<div id = "linklist">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,84 @@
+.left , .right{
+	display: inline-block;
+	position: relative;
+	float:left;
+	height: 600px;
+	//border: solid 3px black;
+}
+
+.left{
+	min-width:70%;
+	
+}
+
+.right{
+	min-width:30%;
+	//border: solid 3px black;
+	background-color:#7e8547;
+}
+
+.pagebody{
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+}
+
+#player{
+	margin-left: 4%;
+	margin-top: 4%;
+}
+
+#linkname{
+	background-color:orange;
+}
+
+#linkduration{
+	background-color: green;
+}
+
+#addoption , #deloption{
+	float: left;
+	background-color: white;
+	margin : 5px;
+	width: 30%;
+	height: 5%;
+}
+
+#label{
+	float: left;
+	background-color: white;
+	margin : 5px;
+	width: 60%;
+	height: 5%;
+}
+
+.link{
+	float:left;
+	background-color: white;
+	width: 70%;
+	height: 4%;
+	border: solid 2px black;
+}
+
+#linklist{
+	margin-left: 5px;
+	float:left;
+}
+
+#mediaoptions{
+	border : solid 3px black;
+	width: 100%;
+	height: 10%;
+	background-color:#7e8547;
+}
+.icon{
+	float: left;
+	background-color: white;
+	width: 30%;
+	height: 20px;
+	border-right: solid 2px black; 
+}
+
+.highlight{
+	background-color: orange
+}

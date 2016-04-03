@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<title> Desktop </title>
+	</head>
+	<script type="text/javascript">
+		function moveTo(url){
+			console.log(url);
+			url = window.location.protocol + "//" + window.location.host + url;
+			window.open(url , '_blank');
+		}
+	</script>
+	<style type="text/css">
+	.left
+	{
+		display: inline-block;
+		width : 10%;
+		height : 98%;
+		border:2px solid #000000;
+		float: left;
+	}
+
+	.right
+	{
+		display: inline-block;
+		width : 89%;
+		height : 98%;
+		border:2px solid #000000;
+	}
+	.icon
+	{
+		width: 98%;
+		height: 10%;
+		border:2px solid #000000;
+		line-height: 200%;
+		text-align: center;
+		display: inline-block;
+	}
+	</style>
+	<body>
+		<div class="left">
+			<div class="icon" onclick="  moveTo('{{compiler_url}}');">		Compiler		</div> 
+			<div class="icon" ondblclick="moveTo('{{editor_url}}');">		Text Editor		</div>
+			<div class="icon" ondblclick="moveTo('{{player_url}}');">		Media Player	</div>
+		</div>
+		<div class="right">
+
+		</div>
+	</body>
+</html>

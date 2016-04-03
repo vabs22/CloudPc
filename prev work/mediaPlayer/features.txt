@@ -1,0 +1,5 @@
+1. link library
+2. link playlists
+3. add/remove/edit url into library , playlists
+4. meta data about links
+5. play links by meta data

@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title> Compiler </title>
+	<style type="text/css">
+	.iobox
+	{
+		width: 50%;
+		height: 20%;
+		border:2px solid #000000;
+	}
+	.myeditor
+	{
+		width: 70%;
+	}
+	#status
+	{
+		width: 15%;
+		height: 6%;
+		border:2px solid #000000;
+		line-height: 200%;
+		text-align: center;
+	}
+
+	</style>
+
+	<meta charset = "utf-8">
+	<script src = "{{url_for('static', filename='codemirror-5.12/lib/codemirror.js') }}" ></script>
+	<script	src = "{{url_for('static', filename='codemirror-5.12/mode/javascript/javascript.js') }}" ></script>
+	<script src = "{{url_for('static', filename='compiler.js') }}" ></script>
+	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/doc/docs.css') }}" >
+	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/lib/codemirror.css') }}" >
+	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/theme/monokai.css') }}" >
+</head>
+<body  onload="Controller.init();">
+	<form class="myeditor">
+		<textarea id="codeEditor"></textarea>
+		<br>
+		<textarea id="input" class="iobox"></textarea>
+		<br>
+		<select id="language">
+			{% for language in languages%}
+				<option value="{{language}}"> {{language}} </option>
+			{% endfor %}
+		</select>
+		<br>
+		<button type="button" onclick="" >Run</button>
+		<br>
+		<textarea id="status" readonly>coming soon</textarea>
+		<br>
+		<textarea id="output" class="iobox" readonly></textarea>
+
+	</form>
+</body>
+</html>
