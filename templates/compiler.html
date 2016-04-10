@@ -1,6 +1,7 @@
 <html>
 <head>
 	<title> Compiler </title>
+	<meta charset = "utf-8">
 	<style type="text/css">
 	.iobox
 	{
@@ -22,33 +23,41 @@
 	}
 
 	</style>
-
-	<meta charset = "utf-8">
 	<script src = "{{url_for('static', filename='codemirror-5.12/lib/codemirror.js') }}" ></script>
 	<script	src = "{{url_for('static', filename='codemirror-5.12/mode/javascript/javascript.js') }}" ></script>
 	<script src = "{{url_for('static', filename='compiler.js') }}" ></script>
+	<script src = "{{url_for('static', filename='jquery-2.2.1.min.js') }}" ></script>
+	<script src = "{{url_for('static', filename='codemirror-5.12/mode/clike/clike.js') }}" ></script>
+	<script src = "{{url_for('static', filename='codemirror-5.12/addon/mode/loadmode.js') }}" ></script>
+	<script src = "{{url_for('static', filename='codemirror-5.12/mode/meta.js') }}" ></script>
 	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/doc/docs.css') }}" >
 	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/lib/codemirror.css') }}" >
 	<link rel = "stylesheet" href = "{{url_for('static', filename='codemirror-5.12/theme/monokai.css') }}" >
+	
 </head>
 <body  onload="Controller.init();">
 	<form class="myeditor">
 		<textarea id="codeEditor"></textarea>
 		<br>
-		<textarea id="input" class="iobox"></textarea>
+		<textarea id="inputbox" class="iobox"> input </textarea>
 		<br>
-		<select id="language">
-			{% for language in languages%}
-				<option value="{{language}}"> {{language}} </option>
-			{% endfor %}
+		<select id="languageMenu" onchange="Controller.changeMode()">
+			<option value="1"> C </option>
+			<option value="2"> C++ </option>
+			<option value="3"> Java </option>	
+			<option value="5"> Python 2 </option>
+			<option value="6"> Perl </option>
+			<option value="7"> PHP </option>
+			<option value="8"> Ruby </option>
+			<option value="9"> C# </option>	
+			<option value="20"> Javascript </option>
 		</select>
 		<br>
-		<button type="button" onclick="" >Run</button>
+		<button id="compileButton" type="button" onclick="Controller.runCode('{{compilingEndpoint}}')" >Run</button>
 		<br>
-		<textarea id="status" readonly>coming soon</textarea>
+		<textarea id="statusbox" readonly>Status</textarea>
 		<br>
-		<textarea id="output" class="iobox" readonly></textarea>
-
+		<textarea id="outputbox" class="iobox" readonly> output</textarea>
 	</form>
 </body>
 </html>
