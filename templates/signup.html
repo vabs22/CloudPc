@@ -5,30 +5,31 @@
   .box
   {
       width: 50%;
-      height: 50%;
+      height: 90%;
       border: 2px solid #000000;
       margin: auto;
-      margin-top: 10%;
+      margin-top: 2%;
       text-align: center;
       line-height: 700%;
   }
   </style>
+  <script src="{{url_for('static', filename='jquery-2.2.1.min.js') }}"></script>
+  <script src="{{url_for('static', filename='signup.js') }}"></script>
 </head>
 <body bgcolor="silver">
   <div class="box">
     <center>
       <H2>User Registration</H2>
-    </center>
-    <center>
     <form name="userlogin">
-      <input type='email' id='emailid' name="username" placeholder="your emailid"/><br>
-      <input type='text' id='password1' name="password1" placeholder="password"/><br>
-      <input type='text' id='password2' name="password2" placeholder="re-type your password"/><br>
-      <button onclick=''> Register </button>
-    </form>
-    </center>
-    <center>
-     <span>Already have an account ? <a href="{{loginurl}}">Login</a></span> 
+      <input type='text' id='name' name="name" placeholder = "Name">
+      <input type='text' id='username' name="username" placeholder="Username">
+      <input type='text' id='password1' name="password1" placeholder="Password"/>
+      <br><br>
+      <input type='button' value='Register' onclick="signup('{{LoginUrl}}' , '{{SignupUrl}}');">
+      <div id="mssg"></div>
+      <br>
+      <span>Already have an account ? <a href="{{LoginUrl}}">Login</a></span> 
+    </form> 
     </center>
     
   </div>

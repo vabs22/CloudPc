@@ -7,14 +7,15 @@
 }
 
 .left{
-	min-width:70%;
-	
+	width:60%;
 }
 
 .right{
+	width:40%;
 	min-width:30%;
 	//border: solid 3px black;
 	background-color:#7e8547;
+
 }
 
 .pagebody{
@@ -26,6 +27,9 @@
 #player{
 	margin-left: 4%;
 	margin-top: 4%;
+	width:750px;
+	height: 450px;	
+	border: 2px solid #000000;
 }
 
 #linkname{
@@ -55,7 +59,7 @@
 .link{
 	float:left;
 	background-color: white;
-	width: 70%;
+	width: 50%;
 	height: 4%;
 	border: solid 2px black;
 }
@@ -82,3 +86,4 @@
 .highlight{
 	background-color: orange
 }
+

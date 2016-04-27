@@ -13,21 +13,22 @@
       line-height: 700%;
   }
   </style>
+  <script src="{{url_for('static', filename='jquery-2.2.1.min.js') }}"></script>
+  <script src="{{url_for('static', filename='login.js') }}"></script>
 </head>
 <body bgcolor="silver">
   <div class="box">
     <center>
       <H2>User Login</H2>
-    </center>
-    <center>
     <form name="userlogin">
-      <input type='text' id='username' name="username" placeholder="your username"/><br>
+      <input type='text' id='username' name="username" placeholder="username"/><br>
       <input type='password' id='password' name="password" placeholder="password"/><br>
-      <button onclick=''> login </button>
+      <br><br>
+      <input type='button' value='Login' onclick="login('{{HomeUrl}}' , '{{LoginUrl}}');">
+      <div id="mssg"></div>
+      <span>Don't have an account ? <a href="{{SignupUrl}}">Sign up</a></span> 
+
     </form>
-    </center>
-    <center>
-     <span>Don't have an account ? <a href="{{signupurl}}">Sign up</a></span> 
     </center>
     
   </div>

@@ -7,8 +7,8 @@ db = client.cloudPc
 Schema :
 
 S.No      Collections      Document attributes   
-1. 			Users 			uid , username , password , name  ### empty at the moment, files([fid]) , links([lid]) , playlists([pid]) , directory([fid] , [did])
-2. 			Files			fid , uid , parent , name , content
+1. 			Users 			uid , username , password , name , files([fid]) , links([lid]) , playlists([pid]) , directory([fid] , [did])
+2. 			Files			fid , uid , parent , name , content , mode
 3. 			Links			lid , uid , link , name
 4. 			Playlists		pid , uid , name , links([lid])
 5. 			Directories		did , uid , parent , name , files([fid]) , directories([did])
@@ -65,9 +65,18 @@ def getFile(fid , uid):						# returns file content
 	uid = int(uid)
 	cursor = db.Files.find({ "fid" : fid , "uid" : uid})
 	filecontent = None
+	mode = None
+	name = None
 	for document in cursor:
 		filecontent = document["content"]
-	return  filecontent
+		moed = document["mode"]
+		name = document["name"]
+	response = {
+		"filecontent" : filecontent , 
+		"name" : name,
+		"mode" : mode
+	}
+	return response
 
 def getLink(lid , uid):						# returns linkname , link pair
 	lid = int(lid)
@@ -78,7 +87,11 @@ def getLink(lid , uid):						# returns linkname , link pair
 	for document in cursor:
 		linkname = document["name"]
 		link = document["link"]
-	return  linkname,link
+	response = {
+	"name" : linkname , 
+	"link" : link
+	}
+	return response
 
 def getPlaylistName(pid , uid):				# returns playlist name
 	pid = int(pid)
@@ -94,9 +107,15 @@ def getPlaylist(pid , uid):					# returns [lid] in playlist
 	uid = int(uid)
 	cursor = db.Playlists.find({ "pid" : pid , "uid" : uid})
 	playlist = None
+	name = None
 	for document in cursor:
 		playlist = document["links"]
-	return  playlist
+		name = document["name"]
+	response = {
+	"links" : playlist , 
+	"name" : name
+	}
+	return response
 
 def getDirectoryName(did , uid):				# returns directory name
 	did = int(did)
@@ -113,10 +132,28 @@ def getDirectory(did , uid):					# returns [fid] , [did] pair
 	cursor = db.Directories.find({ "did" : did , "uid" : uid})
 	files = None
 	directories = None
+	name = None
 	for document in cursor:
 		files = document["files"]
 		directories = document["directories"]
-	return  files,directories
+		name = document["name"]
+	response = {
+	"files" : files , 
+	"directories" : directories , 
+	"name" : name
+	}
+	return response
+
+def getUserDetails(uid):
+	uid = int(uid)
+	cursor = db.Users.find({ "uid" : uid})
+	name = None
+	for document in cursor:
+		name = document["name"]
+	response = {
+	"name" : name
+	}
+	return response
 
 def getUserLinks(uid):					# returns [lid]
 	uid = int(uid)
@@ -140,9 +177,13 @@ def getUserDirectory(uid):				# returns [did]
 	directories = None
 	files = None
 	for document in cursor:
-		directories = document["directory"]["directories"]
-		files = document["directory"]["files"]
-	return files,directories
+		directories = document["directories"]
+		files = document["files"]
+	response = {
+	"files" : files , 
+	"directories" : directories
+	}
+	return response
 
 def getUserFiles(uid):					# returns [fid]
 	uid = int(uid)
@@ -155,9 +196,15 @@ def getUserFiles(uid):					# returns [fid]
 def verifyUser(username , password):	# returns uid or none
 	cursor = db.Users.find({"username" : username , "password" : password}).limit(1)
 	uid = None
+	name = None
 	for document in cursor:
 		uid = document["uid"]
-	return uid
+		name = document["name"]
+	response = {
+	"uid" : uid , 
+	"name" : name
+	}
+	return response
 
 def addUser(username , password , name):		# returns True or false
 	if db.Users.find({"username" : username}).limit(1).count() > 0:
@@ -187,7 +234,7 @@ def addUser(username , password , name):		# returns True or false
 		db.Directories.insert(didrow)
 		return uid
 
-def addFile(uid , name , content , parent):
+def addFile(uid , name , content , parent , mode):
 	uid = int(uid)
 	parent = int(parent)
 	flag = True
@@ -201,7 +248,8 @@ def addFile(uid , name , content , parent):
 		"uid" : uid , 
 		"parent" : parent ,
 		"name" : name , 
-		"content" : content 
+		"content" : content ,
+		"mode" : mode
 		}
 
 		db.Files.insert(filedoc)
@@ -291,20 +339,24 @@ def addToPlaylist(uid , pid , lid):
 	else:
 		return False
 
-"""
-
-def updateFile(fid , uid , name , content):
-	db.Files.update({"uid" : uid , "fid" : fid} , { "$set" : {"name" : name , "content" : content}})
+def updateFile(fid , uid , name , content , mode):
+	db.Files.update({"uid" : uid , "fid" : fid} , { "$set" : {"name" : name , "content" : content , "mode" : mode}})
+	return True
 
 def updateLink(lid , uid , name , link):
 	db.Links.update({"uid" : uid , "lid" : lid} , { "$set" : {"name" : name , "link" : link}})
+	return True
 
 def updateDirectory(did , uid , name):
 	db.Directories.update({"uid" : uid , "did" : did} , { "$set" : {"name" : name}})
+	return True
 
 def updatePlaylist(uid , pid , name):
 	db.Playlists.update({"uid" : uid , "pid" : pid} , { "$set" : {"name" : name}})
+	return True
 
+
+"""
 def delFile(uid , fid , parent):
 	db.Files.remove({"uid" : uid , "fid" : fid})
 	db.Directories.update({"uid" : uid , "did" : parent} , {"$pull" : {"files" : fid}})
