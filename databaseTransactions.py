@@ -109,10 +109,10 @@ def getPlaylist(pid , uid):					# returns [lid] in playlist
 	playlist = None
 	name = None
 	for document in cursor:
-		playlist = document["links"]
+		links = document["links"]
 		name = document["name"]
 	response = {
-	"links" : playlist , 
+	"links" : links , 
 	"name" : name
 	}
 	return response
@@ -300,9 +300,9 @@ def addLink(uid , name , link):
 		}
 		db.Links.insert(linkdoc)
 		db.Users.update({"uid" : uid} , {'$push' : {'links' : lid}})
-		return True
+		return lid
 	else:
-		return False
+		return None
 
 def addPlaylist(uid , name , linklist):
 	uid = int(uid)

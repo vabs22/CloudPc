@@ -13,14 +13,13 @@
 	});
 	</script>
 </head>
-<body onload="Controller.init();">
+<body onload="Controller.init('{{initUrl}}' , '{{linkUrl}}' , '{{playlistUrl}}');">
 	<div class = "pagebody">
 		<div id = "left" class = "left">
 			<div id = "outerframe">
 				<div id="player"></div>
 	    		<div id = "linkdetails">
 	    			<div id = "linkname"></div>
-	    			<div id = "linkduration"></div>
 	    		</div>
 	    		<div id = "mediaoptions">
 	    			<div id = "playprev" class="icon" onclick="Controller.playPreviousVideo()">Previous</div>
@@ -30,31 +29,32 @@
 			</div> 
 		</div>
 		<div id = "right" class = "right">
-			<div id = "r_container">
+			<center>
 				<div id = "options">
 					<div id = "addoption">add</div>
 					<div id = "deloption">delete</div>
 				</div>
 				<br>
 				<div id="addform">
-					<form onsubmit="return Controller.addLink();">
+					<form >
 						<br><br>
 						<input id="link" name="link" type="link" placeholder="link">
 						<br>
 						<input id="name" name="name" type="text" placeholder="name">
 						<br>
-						<input id="duration" name="duration" type="text" placeholder="duration">
-						<br>
-						<input id="submit" type="submit" name="add">
+						<input type="button" value="add" onclick="return Controller.addLink();">
 					</form>
 				</div>
 				<div id="label">
-					<b>Library</b>
+					<form>
+						<select onchange="Controller.changeLinkList();" id="PlaylistSelect" name="PlaylistSelect">
+						</select>
+					</form>
 				</div>
 				<br><br><br><br>
 				<div id = "linklist">
 				</div>
-			</div>
+			</center>
 		</div>
 	</div>
 	

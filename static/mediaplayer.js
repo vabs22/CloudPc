@@ -1,12 +1,12 @@
-var LinkData = function(link , videoId , name , duration){
+var LinkData = function(link , videoId , name , linkId){
 	this.link = link;
 	this.videoId = videoId;
 	this.name = name;
-	this.duration = duration;
+	this.linkId = linkId;
 	this.getHtmlStr = function(){
 		//console.log("this.videoId : " + this.videoId);
 		var str = '<div class = "link" id ="' + this.videoId + '" ondblclick="Controller.playVideoByLink(\'' +  this.videoId + '\');"> ' + this.name + '</div>';
-		return str
+		return str;
 	}
 };
 
@@ -18,13 +18,81 @@ Object.defineProperties(LinkData.prototype , {
 var ModelLibrary = {
 	library : {},
 	currentLink : null,
-	totalLinks : null,
-	init : function(){
-		this.library['Y2HLFS86v04'] = new LinkData("Y2HLFS86v04" , "Y2HLFS86v04" , "tvf permanent roomates preview" , "11:46");
-		this.library['jE1j5Om7g0U'] = new LinkData("jE1j5Om7g0U" , "jE1j5Om7g0U" , "tedx you are awesome" , "10:20");
-		this.library['ZszlVVY1LXo'] = new LinkData("ZszlVVY1LXo" , "ZszlVVY1LXo" , "raspberry pi hacks" , "8:40");
-		this.library['_aAA9-edO3I'] = new LinkData("_aAA9-edO3I" , "_aAA9-edO3I" , "change" , "11:46");
-		this.totalLinks = 4;
+	totalLinks : 0,
+	initUrl :  null ,
+	linkUrl : null ,
+	playlistUrl : null , 
+	links : {} , 
+	playlists : {} ,
+	init : function(initUrl , linkUrl , playlistUrl){
+		this.initUrl = initUrl;
+		this.linkUrl = linkUrl;
+		this.playlistUrl = playlistUrl;
+		this.library = {};
+
+		//console.log(this.initUrl + '\n' + this.linkUrl + '\n' + this.playlistUrl);
+
+		$.ajax({
+		    url: this.initUrl ,
+		    type: "POST" , 
+		    dataType: "json" ,
+		    contentType: 'application/json; charset=utf-8',
+		    success: function(resultData) {
+		    	ModelLibrary.links = resultData["links"];
+		    	
+
+		    	var linklist = [];
+		    	for (var link in resultData["links"]) {
+				    // skip loop if the property is from prototype
+				    if (!resultData["links"].hasOwnProperty(link)) continue;
+
+				    linklist.push(link);
+				}
+
+				/*
+				var obj = resultData["links"][link];
+			    var videoLink = obj["link"];
+			    var videoName = obj["name"];
+			    var videoid = ModelLibrary.extractVideoId(videoLink);
+			    this.library[videoid] = {};
+				this.library[videoid] = new LinkData(videoLink , videoid , videoName);
+				this.totalLinks ++;
+				*/
+				
+				
+				ModelLibrary.playlists = {};
+				ModelLibrary.playlists["All Songs"] = {
+					"linklist" : linklist , 
+					"id" : 0
+				};
+				console.log(ModelLibrary.playlists["All Songs"]);
+				for (var playlist in resultData["playlists"]){
+					// skip loop if the property is from prototype
+				    if (!resultData["playlists"].hasOwnProperty(playlist)) continue;
+
+				    var obj = resultData["playlists"][playlist];
+				    var name = obj["name"];
+				    linklist = obj["links"];
+				    ModelLibrary.playlists[name] = {
+				    	"linklist" : linklist , 
+				    	"id" : playlist
+				    };
+				}
+
+				ModelLibrary.updatePlaylist("All Songs");
+				for(var link in ModelLibrary.library){
+					ModelLibrary.currentLink = link;
+					break;
+				}
+				Controller.viewlistRender();
+		    },
+		    error : function(jqXHR, textStatus, errorThrown) {
+				console.log("ajax error");
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+		    }
+		});
 	},
 	getCurrentLink : function(){
 		return this.currentLink;
@@ -47,6 +115,7 @@ var ModelLibrary = {
 		this.totalLinks --;
 	},
 	getLibrary : function(){
+		console.log("hello there");
 		return this.library;
 	},
 	checkIfLinkExists : function(link){
@@ -56,6 +125,69 @@ var ModelLibrary = {
 		else{
 			return false;
 		}
+	},
+	extractVideoId : function(link){
+		var videoid = link.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
+		if(videoid != null) {
+		   return videoid[1];
+		} else { 
+		    return null;
+		}
+	},
+	getPlaylists : function(){
+		var list = [];
+		for (var playlist in this.playlists){
+			// skip loop if the property is from prototype
+			if (!(this.playlists).hasOwnProperty(playlist)) continue;
+			list.push(playlist);
+		}
+		return list;
+	},
+	updatePlaylist : function(playlist){
+		console.log(this.playlists[playlist]["linklist"]);
+		var list = this.playlists[playlist]["linklist"];
+		var tempLibrary = {};
+		var totalLinks = 0;
+		
+		for (var i = 0; i < list.length ; i++){
+			id = list[i];
+			//console.log(id);
+			var obj = ModelLibrary.links[id];
+		    var videoLink = obj["link"];
+		    var videoName = obj["name"];
+		    var videoid = this.extractVideoId(videoLink);	
+			tempLibrary[videoid] = new LinkData(videoLink , videoid , videoName , id);
+			totalLinks ++;
+		}
+		this.library = tempLibrary;
+		this.totalLinks = totalLinks;
+	},
+	serverAddLink : function(LinkName , myLink , playlist){
+		console.log(LinkName , myLink)
+		var operation = "add";
+		var mydata = {
+			"operation" : operation , 
+			"name" : LinkName , 
+			"link" : myLink , 
+			"playlist" : playlist
+		};
+		$.ajax({
+		    url: this.linkUrl ,
+		    type: "POST" , 
+		    dataType: "json" ,
+		    contentType: 'application/json; charset=utf-8',
+		    data : JSON.stringify(mydata),
+		    success: function(resultData) {
+		    	// some event 
+		    	console.log("Added link");
+		    },
+		    error : function(jqXHR, textStatus, errorThrown) {
+				
+		    }
+		});
+	},
+	getPlaylistId : function(playlist){
+		return this.playlists[playlist]["id"];
 	}
 };
 
@@ -63,10 +195,9 @@ var Controller = {
 	myLink : null,
 	myLinkData : null,
 	linkClass : null,
-	init : function(){
+	init : function(initUrl , linkUrl , playlistUrl){
 		ViewFrame.init();
-		ModelLibrary.init();
-		ViewList.render();
+		ModelLibrary.init(initUrl , linkUrl , playlistUrl);
 		this.linkClass = "link";
 	},
 	getLibrary : function(){
@@ -126,54 +257,60 @@ var Controller = {
 	playPauseVideo : function(){
 		ViewFrame.playPauseVideo();
 	},
-	extractVideoId : function(link){
-		var videoid = link.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
-		if(videoid != null) {
-		   return videoid[1];
-		} else { 
-		    return null;
-		}
-	},
 	addLink : function(){
 		var link = document.getElementById('link');
 		var name = document.getElementById('name');
-		var duration = document.getElementById('duration');
-		var videoId = this.extractVideoId(link.value);
+		var videoId = ModelLibrary.extractVideoId(link.value);
 		
-		if(link.value && name.value && duration.value && videoId){
-			var linkData = new LinkData(link.value , videoId , name.value , duration.value);
+		if(link.value && name.value && videoId){
+			var linkData = new LinkData(link.value , videoId , name.value );
 			ModelLibrary.addLinkData(videoId , linkData);
 			ViewList.addLink(linkData);
 		}
+		var playlist = getCurrentPlaylist();
+		playlist = getPlaylistId(playlist);
+		ModelLibrary.serverAddLink(name.value , link.value , playlist);
 		link.value = null;
 		name.value = null;
-		duration.value = null;
 		return false;
 	},
 	removeLink : function(){
 		
+	},
+	getPlaylists : function(){
+		return ModelLibrary.getPlaylists();
+	},
+	changeLinkList : function(){
+		var playlist = getCurrentPlaylist();
+		ModelLibrary.updatePlaylist(playlist);
+		var library = ModelLibrary.getLibrary();
+		ViewList.renderLinkList(library);
+	},
+	viewlistRender : function(){
+		ViewList.render();
 	}
 };
 
 var ViewList = {
 	render : function(){
-
-		var myLinkList = document.getElementById('linklist');
 		var mylibrary = Controller.getLibrary();
-		var myLinkData = null;
-		var auxstr = '';
-		for( var i in mylibrary)
-		{
-			myLinkData = mylibrary[i];
-			var str = myLinkData.getHtmlStr();
-			auxstr = auxstr + str;
+		console.log(mylibrary);
+		ViewList.renderLinkList(mylibrary);
+		var myPlaylists = Controller.getPlaylists();
+		console.log(myPlaylists);
+		for (var i = 0; i < myPlaylists.length ; i++){
+			name = myPlaylists[i];
+			this.addPlaylist(name);
 		}
-		myLinkList.innerHTML = auxstr;
 	},
 	addLink : function(myLinkData){
 		var myLinkList = $('#linklist');
 		var str = myLinkData.getHtmlStr();
 		myLinkList.append(str);
+	},
+	addPlaylist : function(playlist){
+		var str = '<option class = "playlist" id ="' + playlist + '" ondblclick="Controller.loadPlaylist(\'' +  playlist + '\');"> ' + playlist + '</option>';
+		$("#PlaylistSelect").append(str);
 	},
 	highlightLink : function(prevLink , myLink){
 		var prevelem = $("#" + prevLink);
@@ -181,6 +318,23 @@ var ViewList = {
 
 		prevelem.removeClass("highlight");
 		newelem.addClass("highlight");
+	},
+	renderLinkList : function(mylibrary){
+		var myLinkList = document.getElementById('linklist');
+		var myLinkData = null;
+		var auxstr = '';
+		for( var i in mylibrary)
+		{
+			myLinkData = mylibrary[i];
+			var str = myLinkData.getHtmlStr();
+			auxstr = auxstr + str;
+			//console.log("i : " + i + " str : " + str);
+		}
+		myLinkList.innerHTML = auxstr;
+		//console.log(auxstr);
+	},
+	getCurrentPlaylist : function(){
+		return $('select[name=PlaylistSelect]').val();
 	}
 };
 
@@ -218,8 +372,6 @@ var ViewFrame = {
 	setVideoDetails : function(myLinkData){
 		var myLinkName = document.getElementById('linkname');
 		myLinkName.innerHTML = myLinkData.name;
-		var myLinkDuration = document.getElementById('linkduration');
-		myLinkDuration.innerHTML = myLinkData.duration;
 	},
 	playPauseVideo : function(){
 

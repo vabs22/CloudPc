@@ -24,7 +24,6 @@ def user_not_logged_required(f):
     return decorated_function
 
 
-
 @app.route('/')
 def hello_world():
     return 'Welcome to cloudPc'
@@ -75,7 +74,7 @@ def editorpage():
 @app.route('/mediaplayer')
 @login_required
 def mediaplayerpage():
-	return render_template('mediaplayer.html')
+	return render_template('mediaplayer.html' , initUrl = url_for('get_mediaplayerpage_data') , linkUrl = url_for('linkdata') , playlistUrl = url_for('playlistdata'))
 
 
 
@@ -88,7 +87,6 @@ def compilerpage():
 @app.route('/hackerrank' , methods=['GET', 'POST'])
 @login_required
 def runcode():
-	print str(request.data)
 	data = json.loads(request.data)
 	RUN_URL = 'http://api.hackerrank.com/checker/submission.json'
 	key = 'hackerrank|304622-252|45b2fe94cc7186ee94f8f3e44620046cbcce9662'
@@ -169,142 +167,179 @@ def userdata(operation):
 
 
 
-@app.route('/api/file/<operation>' , methods=['POST'])
+@app.route('/api/file' , methods=['POST'])
 @login_required
-def filedata(operation):
+def filedata():
+	data = json.loads(request.data)
 	uid =  session['uid']
+	operation = data["operation"]
+	response = {}
 
 	if operation == 'add':
-		name = request.data['name']
-		content = request.data['content']
-		mode = request.data['mode']
-		parent = request.data['parent']
+		name = data['name']
+		content = data['content']
+		mode = data['mode']
+		parent = data['parent']
 
 		result = addFile(uid , name , content , parent , mode)
 		if result:
-			return str({"status" : "success"})
+			response = {"status" : "success"}
 		else:
-			return str({"status" : "error" , "message" : "A file with same name already exists"})
+			response = {"status" : "error" , "message" : "A file with same name already exists"}
 
 	elif operation == 'update':
-		name = request.data['name']
-		content = request.data['content']
-		mode = request.data['mode']
-		fid = request.data['fid']
+		name = data['name']
+		content = data['content']
+		mode = data['mode']
+		fid = data['fid']
 
 		result = updateFile(fid , uid , name , content , mode)
-		return str({"status" : "success"})
+		response = {"status" : "success"}
 
 	elif operation == 'get':
-		fid = request.data['fid']
-		result = getFile(fid , uid)
-		return result
+		fid = data['fid']
+		response = getFile(fid , uid)
 
 	elif operation == 'del':
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
 	else:
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
+
+	return jsonify(response)
 
 
-@app.route('/api/link/<operation>' , methods=['GET', 'POST'])
+@app.route('/api/link' , methods=['POST'])
 @login_required
-def linkdata(operation):
+def linkdata():
+	data = json.loads(request.data)
 	uid =  session['uid']
+	operation = data["operation"]
+	response = {}
 
 	if operation == 'add':
-		link = request.data['link']
-		name = request.data['name']
-
-		result = addLink(uid , name , link)
-		if result:
-			return str({"status" : "success"})
+		link = data["link"]
+		name = data["name"]
+		pid = int(data["playlist"])
+		#print uid , name , link
+		lid = addLink(uid , name , link)
+		if lid is not None:
+			result = addToPlaylist(uid , pid , lid)
+			if result:
+				response = {"status" : "success"}
+			else:
+				response = {"status" : "error" , "message" : "given link already exists in the playlist"}
 		else:
-			return str({"status" : "error" , "message" : "A file with same name already exists"})
+			response = {"status" : "error" , "message" : "A file with same name already exists"}
 
 	elif operation == 'get':
-		lid = request.data['lid']
-		result = getLink(lid , uid)
-		return result
+		lid = data['lid']
+		response =  getLink(lid , uid)
 
 	elif operation == 'update':
-		lid = request.data['lid']
-		link = request.data['link']
-		name = request.data['name']
+		lid = data['lid']
+		link = data['link']
+		name = data['name']
 
 		result = updateLink(lid , uid , name , link)
-		return str({"status" : "success"})
+		response = {"status" : "success"}
 
 	elif operation == 'del':
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
 	else:
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
+
+	return jsonify(response)
 
 
-@app.route('/api/playlist/<operation>' , methods=['GET', 'POST'])
+
+@app.route('/api/playlist' , methods=['POST'])
 @login_required
-def playlistdata(operation):
+def playlistdata():
+	data = json.loads(request.data)
 	uid =  session['uid']
+	operation = data["operation"]
+	response = {}
 
 	if operation == 'add':
-		linklist = request.data['links']
-		name = request.data['name']
+		linklist = data['links']
+		name = data['name']
 		result = addPlaylist(uid , name , linklist)
 
 		if result:
-			return str({"status" : "success"})
+			response = {"status" : "success"}
 		else:
-			return str({"status" : "error" , "message" : "A file with same name already exists"})
+			response = {"status" : "error" , "message" : "A file with same name already exists"}
 
 	elif operation == 'get':
-		pid = request.data['pid']
-		result = getPlaylist(pid , uid)
-		return result
+		pid = data['pid']
+		response = getPlaylist(pid , uid)
 
 	elif operation == 'update':
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
 
 	elif operation == 'del':
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
 	else:
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
+
+	return jsonify(response)
 
 
-@app.route('/api/directory/<operation>' , methods=['GET', 'POST'])
+
+@app.route('/api/directory' , methods=['POST'])
 @login_required
-def directorydata(operation):
+def directorydata():
+	data = json.loads(request.data)
 	uid =  session['uid']
+	operation = data["operation"]
+	response = {}
 
 	if operation == 'add':
-		name = request.data['name']
-		parent = request.data['parent']
+		name = data['name']
+		parent = data['parent']
 		fileList = []
 		directoryList = []
 		result = addDirectory(uid , name , fileList , directoryList , parent)
 
 		if result:
-			return str({"status" : "success"})
+			response = {"status" : "success"}
 		else:
-			return str({"status" : "error" , "message" : "A directory with same name already exists"})
+			response = {"status" : "error" , "message" : "A directory with same name already exists"}
 
 	elif operation == 'get':
-		did = request.data['did']
-		result = getDirectory(did , uid)
-		return result
+		did = data['did']
+		response = getDirectory(did , uid)
 
 	elif operation == 'del':
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
 	else:
 		response = {'status' : 'error' , 'message' : 'Service Not supported'}
-		return str(response)
+
+	return jsonify(response)
+
 	
+
+@app.route('/api/mediaplayer' , methods=['POST'])
+@login_required
+def get_mediaplayerpage_data():
+	uid =  session['uid']
+	response = {}
+
+	links = getUserLinks(uid)
+	linkdict = {}
+	for link in links:
+		linkdict[link] = getLink(link , uid)
+
+	response["links"] = linkdict
+
+	playlists = getUserPlaylists(uid)
+	playlistdict = {}
+	for playlist in playlists:
+		playlistdict[playlist] = getPlaylist(playlist , uid)
+
+	response["playlists"] = playlistdict
+
+	return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0' , port=8001 ,debug=True)

@@ -49,7 +49,6 @@
 }
 
 #label{
-	float: left;
 	background-color: white;
 	margin : 5px;
 	width: 60%;
@@ -59,14 +58,14 @@
 .link{
 	float:left;
 	background-color: white;
-	width: 50%;
+	width: 100%;
 	height: 4%;
 	border: solid 2px black;
 }
 
 #linklist{
-	margin-left: 5px;
-	float:left;
+	width:70%;
+	margin : 5px;
 }
 
 #mediaoptions{
